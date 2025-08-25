@@ -1,0 +1,6 @@
+llm_provider: auto
+min_cluster_size: 25
+target_other_pct: 12
+include_other: false
+cost_per_min: 1.2
+deflection_pct: 35

@@ -1,0 +1,35 @@
+version: 2
+taxonomy:
+  - name: Password Reset / Unlock
+    synonyms: [password, unlock, locked, reset, sspr, 'account lock', forgot, 'self service password']
+  - name: MFA / SSO / Identity
+    synonyms: [mfa, otp, verify, authenticator, 2fa, okta, duo, 'azure ad', sso, adfs, sign-in, signin, login]
+  - name: Email / Outlook
+    synonyms: [outlook, email, o365, 'office 365', mailbox, send, receive, calendar, pst, 'shared mailbox']
+  - name: Conferencing / Teams / Zoom
+    synonyms: [teams, zoom, webex, meeting, audio, video, microphone, camera, 'teams chat', 'teams call']
+  - name: VPN / Network Access
+    synonyms: [vpn, globalprotect, anyconnect, zscaler, proxy, ssl, connect, tunnel, 'remote access']
+  - name: Network Hardware / Interface
+    synonyms: ['switch', 'router', 'firewall', cisco, interface, gigabitethernet, uplink, latency, 'packet loss',
+               'access point', ap, wlan, ssid, 'wireless controller', wlc, 'thin ap', poe, 'port channel', linkdown, 'port down']
+  - name: Device / Laptop / Desktop
+    synonyms: [laptop, desktop, pc, boot, battery, keyboard, touchpad, screen, monitor, 'blue screen', bsod, 'no boot']
+  - name: Printing / Scanning
+    synonyms: [printer, print, zebra, scan, driver, toner, 'print queue', 'unable to print']
+  - name: Access Provisioning
+    synonyms: ['add to group', entitlement, license, provision, enable, 'request access', 'access request', 'grant access']
+  - name: Software Install / Update
+    synonyms: [install, installation, update, patch, deployment, intune, sccm, 'software center']
+  - name: Storage / OneDrive / SharePoint
+    synonyms: [onedrive, sharepoint, sync, drive, share, permission, library, 'shared drive']
+  - name: Enterprise App — SAP
+    synonyms: [sap, sapgui, 'sap logon', saplogon]
+  - name: Enterprise App — Veeva Vault
+    synonyms: [veeva, vault, veevavault]
+  - name: Security / Endpoint
+    synonyms: [defender, antivirus, threat, malware, bitlocker, encryption, policy, compliance]
+  - name: Telephony / Mobile
+    synonyms: [iphone, ipad, android, mobile, sim, telephony, softphone, ring, call, voicemail]
+  - name: Status / Request Updates
+    synonyms: [status, update, 'where is', eta, progress, 'check status']

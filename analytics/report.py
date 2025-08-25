@@ -4,7 +4,11 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 
 def driver_kpis(df: pd.DataFrame) -> pd.DataFrame:
-    gp = df.groupby("driver")
+    d = df.copy()
+    if "driver" not in d.columns and "final_driver" in d.columns:
+        d = d.rename(columns={"final_driver": "driver"})
+    d["driver"] = d["driver"].astype(str).fillna("Other")
+    gp = d.groupby("driver", dropna=False)
     out = pd.DataFrame({
         "Tickets": gp.size(),
         "With_AHT": gp["aht_min"].apply(lambda s: s.notna().sum()),
