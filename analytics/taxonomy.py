@@ -1,28 +1,44 @@
 import yaml, re
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import Dict, List, Tuple
+
 
 @dataclass
 class TaxEntry:
     name: str
     synonyms: List[str]
 
-def load_taxonomy(path: str = "config/taxonomy.yaml") -> List[TaxEntry]:
-    """Load taxonomy definitions from YAML.
 
-    Returns an empty list when the file is missing or malformed so the app can
+def load_taxonomy(path: str = "config/taxonomy.yaml") -> Dict:
+    """Load taxonomy definitions as a dictionary.
+
+    Returns an empty dict when the file is missing or malformed so the app can
     continue running without crashing.
     """
     try:
         with open(path) as f:
-            doc = yaml.safe_load(f) or {}
+            return yaml.safe_load(f) or {}
     except (FileNotFoundError, yaml.YAMLError):
-        return []
+        return {}
 
+
+def save_taxonomy(data: Dict, path: str = "config/taxonomy.yaml") -> None:
+    """Persist taxonomy definitions back to YAML."""
+    with open(path, "w") as f:
+        yaml.safe_dump(data, f, sort_keys=False)
+
+
+def load_taxonomy_entries(path: str = "config/taxonomy.yaml") -> List[TaxEntry]:
+    """Return taxonomy as a list of TaxEntry objects for matching."""
+    doc = load_taxonomy(path)
     out: List[TaxEntry] = []
     for item in doc.get("taxonomy", []):
-        out.append(TaxEntry(name=item["name"],
-                            synonyms=[str(s).lower() for s in item.get("synonyms", [])]))
+        out.append(
+            TaxEntry(
+                name=item["name"],
+                synonyms=[str(s).lower() for s in item.get("synonyms", [])],
+            )
+        )
     return out
 
 # Strong phrase patterns to resolve conflicts
