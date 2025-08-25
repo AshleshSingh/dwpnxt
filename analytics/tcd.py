@@ -1,5 +1,7 @@
 import re, pandas as pd, yaml
+from functools import lru_cache
 
+@lru_cache(maxsize=1)
 def load_rules(path="analytics/rules.yaml"):
     with open(path, "r") as f:
         return yaml.safe_load(f)["rules"]
