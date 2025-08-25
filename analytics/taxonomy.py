@@ -8,11 +8,21 @@ class TaxEntry:
     synonyms: List[str]
 
 def load_taxonomy(path: str = "config/taxonomy.yaml") -> List[TaxEntry]:
-    with open(path) as f:
-        doc = yaml.safe_load(f)
-    out = []
+    """Load taxonomy definitions from YAML.
+
+    Returns an empty list when the file is missing or malformed so the app can
+    continue running without crashing.
+    """
+    try:
+        with open(path) as f:
+            doc = yaml.safe_load(f) or {}
+    except (FileNotFoundError, yaml.YAMLError):
+        return []
+
+    out: List[TaxEntry] = []
     for item in doc.get("taxonomy", []):
-        out.append(TaxEntry(name=item["name"], synonyms=[str(s).lower() for s in item.get("synonyms", [])]))
+        out.append(TaxEntry(name=item["name"],
+                            synonyms=[str(s).lower() for s in item.get("synonyms", [])]))
     return out
 
 # Strong phrase patterns to resolve conflicts

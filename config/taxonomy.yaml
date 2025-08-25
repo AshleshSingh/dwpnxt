@@ -1,35 +1,228 @@
 version: 2
 taxonomy:
   - name: Password Reset / Unlock
-    synonyms: [password, unlock, locked, reset, sspr, 'account lock', forgot, 'self service password']
+    synonyms:
+      - password
+      - unlock
+      - locked
+      - reset
+      - sspr
+      - "account lock"
+      - forgot
+      - "self service password"
+      - "password change"
+      - "unlock user"
+      - credential
   - name: MFA / SSO / Identity
-    synonyms: [mfa, otp, verify, authenticator, 2fa, okta, duo, 'azure ad', sso, adfs, sign-in, signin, login]
+    synonyms:
+      - mfa
+      - otp
+      - verify
+      - authenticator
+      - "2fa"
+      - okta
+      - duo
+      - "azure ad"
+      - sso
+      - adfs
+      - sign-in
+      - signin
+      - login
+      - authentication
+      - token
+      - identity
+      - "single sign on"
   - name: Email / Outlook
-    synonyms: [outlook, email, o365, 'office 365', mailbox, send, receive, calendar, pst, 'shared mailbox']
+    synonyms:
+      - outlook
+      - email
+      - o365
+      - "office 365"
+      - mailbox
+      - send
+      - receive
+      - calendar
+      - pst
+      - "shared mailbox"
+      - exchange
+      - smtp
+      - imap
   - name: Conferencing / Teams / Zoom
-    synonyms: [teams, zoom, webex, meeting, audio, video, microphone, camera, 'teams chat', 'teams call']
+    synonyms:
+      - teams
+      - zoom
+      - webex
+      - meeting
+      - audio
+      - video
+      - microphone
+      - camera
+      - "teams chat"
+      - "teams call"
+      - "web meeting"
+      - "join meeting"
+      - conferencing
   - name: VPN / Network Access
-    synonyms: [vpn, globalprotect, anyconnect, zscaler, proxy, ssl, connect, tunnel, 'remote access']
+    synonyms:
+      - vpn
+      - globalprotect
+      - anyconnect
+      - zscaler
+      - proxy
+      - ssl
+      - connect
+      - tunnel
+      - "remote access"
+      - "vpn login"
+      - "remote connection"
+      - connectivity
   - name: Network Hardware / Interface
-    synonyms: ['switch', 'router', 'firewall', cisco, interface, gigabitethernet, uplink, latency, 'packet loss',
-               'access point', ap, wlan, ssid, 'wireless controller', wlc, 'thin ap', poe, 'port channel', linkdown, 'port down']
+    synonyms:
+      - switch
+      - router
+      - firewall
+      - cisco
+      - interface
+      - gigabitethernet
+      - uplink
+      - latency
+      - "packet loss"
+      - "access point"
+      - ap
+      - wlan
+      - ssid
+      - "wireless controller"
+      - wlc
+      - "thin ap"
+      - poe
+      - "port channel"
+      - linkdown
+      - "port down"
+      - switchport
+      - "ethernet port"
   - name: Device / Laptop / Desktop
-    synonyms: [laptop, desktop, pc, boot, battery, keyboard, touchpad, screen, monitor, 'blue screen', bsod, 'no boot']
+    synonyms:
+      - laptop
+      - desktop
+      - pc
+      - boot
+      - battery
+      - keyboard
+      - touchpad
+      - screen
+      - monitor
+      - "blue screen"
+      - bsod
+      - "no boot"
+      - computer
+      - workstation
+      - machine
   - name: Printing / Scanning
-    synonyms: [printer, print, zebra, scan, driver, toner, 'print queue', 'unable to print']
+    synonyms:
+      - printer
+      - print
+      - zebra
+      - scan
+      - driver
+      - toner
+      - "print queue"
+      - "unable to print"
+      - copier
+      - "scan to email"
+      - "print server"
   - name: Access Provisioning
-    synonyms: ['add to group', entitlement, license, provision, enable, 'request access', 'access request', 'grant access']
+    synonyms:
+      - "add to group"
+      - entitlement
+      - license
+      - provision
+      - enable
+      - "request access"
+      - "access request"
+      - "grant access"
+      - account
+      - privilege
+      - permission
+      - "user access"
   - name: Software Install / Update
-    synonyms: [install, installation, update, patch, deployment, intune, sccm, 'software center']
+    synonyms:
+      - install
+      - installation
+      - update
+      - patch
+      - deployment
+      - intune
+      - sccm
+      - "software center"
+      - upgrade
+      - uninstall
   - name: Storage / OneDrive / SharePoint
-    synonyms: [onedrive, sharepoint, sync, drive, share, permission, library, 'shared drive']
+    synonyms:
+      - onedrive
+      - sharepoint
+      - sync
+      - drive
+      - share
+      - permission
+      - library
+      - "shared drive"
+      - "file share"
+      - "drive mapping"
   - name: Enterprise App — SAP
-    synonyms: [sap, sapgui, 'sap logon', saplogon]
+    synonyms:
+      - sap
+      - sapgui
+      - "sap logon"
+      - saplogon
+      - "sap ecc"
+      - "s/4"
+      - hana
   - name: Enterprise App — Veeva Vault
-    synonyms: [veeva, vault, veevavault]
+    synonyms:
+      - veeva
+      - vault
+      - veevavault
+      - "veeva vault"
+      - "veeva crm"
   - name: Security / Endpoint
-    synonyms: [defender, antivirus, threat, malware, bitlocker, encryption, policy, compliance]
+    synonyms:
+      - defender
+      - antivirus
+      - threat
+      - malware
+      - bitlocker
+      - encryption
+      - policy
+      - compliance
+      - virus
+      - phishing
+      - ransomware
+      - endpoint
+      - security
   - name: Telephony / Mobile
-    synonyms: [iphone, ipad, android, mobile, sim, telephony, softphone, ring, call, voicemail]
+    synonyms:
+      - iphone
+      - ipad
+      - android
+      - mobile
+      - sim
+      - telephony
+      - softphone
+      - ring
+      - call
+      - voicemail
+      - cell
+      - smartphone
+      - voip
+      - sms
   - name: Status / Request Updates
-    synonyms: [status, update, 'where is', eta, progress, 'check status']
+    synonyms:
+      - status
+      - update
+      - "where is"
+      - eta
+      - progress
+      - "check status"
+      - "status update"
+      - "ticket status"
+
