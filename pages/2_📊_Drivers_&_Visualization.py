@@ -85,8 +85,9 @@ with st.expander("Map to DWPNxt Taxonomy & Reconcile", expanded=True):
 
     st.session_state["refined"] = refined
     freq_all = refined.groupby("final_driver").size().reset_index(name="Tickets").sort_values("Tickets", ascending=False)
-    if not include_other:
-        freq_all = freq_all[freq_all["Tickets"]>0 & (freq_all["final_driver"]!="Other")] if "Other" in freq_all["final_driver"].values else freq_all
+    if not include_other and "Other" in freq_all["final_driver"].values:
+        mask = (freq_all["Tickets"] > 0) & (freq_all["final_driver"] != "Other")
+        freq_all = freq_all[mask]
     st.subheader("Final Drivers")
     fig_top = px.bar(freq_all.head(15), x="final_driver", y="Tickets", title="Top Call Drivers — Final")
     st.plotly_chart(fig_top, use_container_width=True)
