@@ -2,7 +2,7 @@ import streamlit as st, pandas as pd, plotly.express as px, pathlib
 from analytics.tcd import load_rules, derive_drivers
 from analytics.cluster import iterative_other_reduction
 from analytics.llm_bridge import best_label_for_cluster
-from analytics.taxonomy import load_taxonomy, map_text_to_taxonomy
+from analytics.taxonomy import load_taxonomy_entries, map_text_to_taxonomy
 
 st.markdown("<style>" + pathlib.Path("assets/theme.css").read_text() + "</style>", unsafe_allow_html=True)
 st.title("📊 Drivers & Visualization")
@@ -50,11 +50,11 @@ with st.expander("Clustering on 'Other' + Intelligent Labeling (Python-first, LL
 
 # 3) Taxonomy mapping + reconciliation
 with st.expander("Map to DWPNxt Taxonomy & Reconcile", expanded=True):
-    tax = load_taxonomy()
+    entries = load_taxonomy_entries()
     # taxonomy score per row
     titles, scores = [], []
     for txt in refined["text"].astype(str).tolist():
-        t, sc = map_text_to_taxonomy(txt, tax)
+        t, sc = map_text_to_taxonomy(txt, entries)
         titles.append(t); scores.append(sc)
     refined["taxonomy_match"] = titles
     refined["taxonomy_score"] = scores
@@ -69,8 +69,8 @@ with st.expander("Map to DWPNxt Taxonomy & Reconcile", expanded=True):
         # merged
         refined["final_driver"] = refined.apply(lambda r: r["taxonomy_match"] if (pd.notna(r["taxonomy_match"]) and r["taxonomy_score"]>=2) else r["driver"], axis=1)
     # --- Taxonomy conflict fix & fill 'Other' ---
-    from analytics.taxonomy import load_taxonomy, match_taxonomy
-    entries = load_taxonomy()
+    from analytics.taxonomy import load_taxonomy_entries, match_taxonomy
+    entries = load_taxonomy_entries()
     tx = refined["text"].astype(str).apply(lambda t: match_taxonomy(t, entries))
     refined["taxonomy_match"] = tx.apply(lambda r: r[0])
     refined["taxonomy_score"] = tx.apply(lambda r: r[1])

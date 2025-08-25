@@ -1,28 +1,51 @@
-import yaml, re
+import os, yaml, re
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
 
 @dataclass
 class TaxEntry:
     name: str
     synonyms: List[str]
 
-def load_taxonomy(path: str = "config/taxonomy.yaml") -> List[TaxEntry]:
-    """Load taxonomy definitions from YAML.
+def save_taxonomy(data: Dict[str, Any], path: str = "config/taxonomy.yaml") -> None:
+    """Persist the given taxonomy dictionary to disk."""
+    dir_name = os.path.dirname(path)
+    if dir_name:
+        os.makedirs(dir_name, exist_ok=True)
+    with open(path, "w") as f:
+        yaml.safe_dump(data, f, sort_keys=False)
 
-    Returns an empty list when the file is missing or malformed so the app can
-    continue running without crashing.
+
+def load_taxonomy(path: str = "config/taxonomy.yaml") -> Dict[str, Any]:
+    """Return the raw taxonomy YAML dictionary.
+
+    On any failure or malformed file, a default ``{"taxonomy": []}`` is
+    returned so the app can continue running.
     """
     try:
         with open(path) as f:
             doc = yaml.safe_load(f) or {}
+        if not isinstance(doc, dict):
+            return {"taxonomy": []}
+        tax = doc.get("taxonomy")
+        if not isinstance(tax, list):
+            return {"taxonomy": []}
+        return {"taxonomy": tax}
     except (FileNotFoundError, yaml.YAMLError):
-        return []
+        return {"taxonomy": []}
 
+
+def load_taxonomy_entries(path: str = "config/taxonomy.yaml") -> List[TaxEntry]:
+    """Load taxonomy YAML and convert to ``TaxEntry`` objects."""
+    doc = load_taxonomy(path)
     out: List[TaxEntry] = []
     for item in doc.get("taxonomy", []):
-        out.append(TaxEntry(name=item["name"],
-                            synonyms=[str(s).lower() for s in item.get("synonyms", [])]))
+        try:
+            name = item["name"]
+            synonyms = [str(s).lower() for s in item.get("synonyms", [])]
+            out.append(TaxEntry(name=name, synonyms=synonyms))
+        except Exception:
+            continue
     return out
 
 # Strong phrase patterns to resolve conflicts
