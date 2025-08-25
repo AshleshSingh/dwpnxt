@@ -73,7 +73,7 @@ with st.expander("Save / Load Settings", expanded=False):
             path = save_prefs(prefs=prefs, include_keys=False)
             st.success(f"Saved to {path}")
     with c2:
-        if st.button("�� Save Settings (include keys)"):
+        if st.button("🔐 Save Settings (include keys)"):
             prefs["GEMINI_API_KEY"] = os.environ.get("GEMINI_API_KEY","")
             prefs["OPENAI_API_KEY"] = os.environ.get("OPENAI_API_KEY","")
             path = save_prefs(prefs=prefs, include_keys=True)
