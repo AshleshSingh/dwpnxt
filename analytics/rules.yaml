@@ -1,0 +1,16 @@
+rules:
+  - name: Password Reset / Unlock
+    keywords: ["password", "unlock", "locked", "reset", "sspr"]
+    recommend:
+      existing: ["IDP/SSPR", "VA intent: password reset"]
+      gap_suggestions: ["Enable SSPR", "Add VA intent", "IVR quick-path"]
+  - name: Status Checks
+    keywords: ["status", "check status", "where is", "eta", "update", "progress"]
+    recommend:
+      existing: ["VA/Portal: request status", "Self-service tracking"]
+      gap_suggestions: ["Expose status intent", "Push notifications", "IVR status"]
+  - name: Access Provisioning (Standard)
+    keywords: ["access", "add to group", "license", "entitle", "provision"]
+    recommend:
+      existing: ["SN Catalog + Orchestrator/Workato"]
+      gap_suggestions: ["Automate approvals", "Auto-route ML", "JIT access"]
