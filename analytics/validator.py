@@ -76,9 +76,8 @@ def validate_and_normalize(inc: pd.DataFrame, req: pd.DataFrame, mapping: Option
     df["text"] = (df["short_description"].fillna("") + " " + df["description"].fillna("")).astype(str)
 
     # prefer provided AHT; else derive from dates
-    provided = None
-    if any(c in df.columns for c in ["u_aht_minutes","AHT","avg_handle_time"]):
-        provided = pd.to_numeric(df[["u_aht_minutes","AHT","avg_handle_time"]].bfill(axis=1).iloc[:,0], errors="coerce")
+    aht_cols = [c for c in ["u_aht_minutes","AHT","avg_handle_time"] if c in df.columns]
+    provided = pd.to_numeric(df[aht_cols].bfill(axis=1).iloc[:,0], errors="coerce") if aht_cols else None
     derived = (df["resolved_dt"] - df["opened_dt"]).dt.total_seconds()/60.0
     df["aht_min"] = provided.fillna(derived) if provided is not None else derived
     df["aht_min"] = df["aht_min"].clip(lower=1, upper=480)
