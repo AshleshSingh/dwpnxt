@@ -5,3 +5,12 @@ scikit-learn==1.4.2
 openpyxl==3.1.2
 plotly==5.22.0
 pyyaml==6.0.1
+reportlab==4.2.0
+xlsxwriter==3.2.0
+hdbscan==0.8.38.post1
+umap-learn==0.5.5
+kaleido==0.2.1
+google-genai>=0.3.0
+openai>=1.55.3,<2
+httpx<0.28
+yake==0.4.8
