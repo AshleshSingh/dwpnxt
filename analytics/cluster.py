@@ -50,13 +50,20 @@ def try_hdbscan(Xs, min_cluster_size=25, min_samples=None):
     except Exception:
         return None, "none", None
 
-def run_clustering(texts: pd.Series,
+def run_clustering(texts: pd.Series | None = None,
                    min_cluster_size=25,
-                   kmeans_k=12) -> Tuple[np.ndarray,str,Dict]:
-    X, Xs, vec, svd = featurize(texts)
+                   kmeans_k=12,
+                   X=None,
+                   Xs=None,
+                   vec=None,
+                   svd=None) -> Tuple[np.ndarray,str,Dict]:
+    if X is None or Xs is None or vec is None or svd is None:
+        if texts is None:
+            raise ValueError("Either texts or precomputed features must be provided")
+        X, Xs, vec, svd = featurize(texts)
     labels, algo, model = try_hdbscan(Xs, min_cluster_size=min_cluster_size)
     if labels is None or (labels.astype(int) < 0).all():
-        km = KMeans(n_clusters=min(kmeans_k, max(2, int(len(texts)/min_cluster_size))), random_state=42, n_init="auto")
+        km = KMeans(n_clusters=min(kmeans_k, max(2, int(Xs.shape[0]/min_cluster_size))), random_state=42, n_init="auto")
         labels = km.fit_predict(Xs)
         algo, model = "kmeans", km
     return labels, algo, {"vec":vec, "svd":svd, "model":model, "X":X, "Xs":Xs}
@@ -66,11 +73,19 @@ def iterative_other_reduction(df: pd.DataFrame,
                               max_rounds=3,
                               min_cluster_size=25) -> pd.DataFrame:
     df = df.copy()
+    X, Xs, vec, svd = featurize(df["text"])
     for _ in range(max_rounds):
         mask = df["driver"]=="Other"
         if not mask.any(): break
         if mask.mean() <= target_other_pct: break
-        labels, algo, ctx = run_clustering(df.loc[mask,"text"], min_cluster_size=min_cluster_size)
+        sub_X = X[mask.to_numpy()]
+        sub_Xs = Xs[mask.to_numpy()]
+        labels, algo, ctx = run_clustering(df.loc[mask,"text"],
+                                           min_cluster_size=min_cluster_size,
+                                           X=sub_X,
+                                           Xs=sub_Xs,
+                                           vec=vec,
+                                           svd=svd)
         # label names → lightweight top-term strings (pre-LLM/Python labeling happens elsewhere)
         sub = pd.Series(labels, index=df.index[mask])
         df.loc[mask, "driver"] = sub.map(lambda x: f"cluster_{x}" if x != -1 else "Other")
