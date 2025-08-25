@@ -1,11 +1,35 @@
 import os, re, random, json
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from openai import OpenAI
 import httpx
 
-# Single, reusable client. httpx will honor environment proxies automatically.
-_http_client = httpx.Client(timeout=60.0)
-_client_singleton = OpenAI(api_key=os.getenv("OPENAI_API_KEY"), http_client=_http_client)
+# Lazily created OpenAI and httpx clients.
+_cached_client: Optional[OpenAI] = None
+_cached_httpx: Optional[httpx.Client] = None
+
+
+def get_client() -> Optional[OpenAI]:
+    """Return a cached OpenAI client or ``None`` if the API key is missing."""
+    global _cached_client, _cached_httpx
+    if _cached_client is not None:
+        return _cached_client
+
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        return None
+
+    _cached_httpx = httpx.Client(timeout=60.0)
+    _cached_client = OpenAI(api_key=api_key, http_client=_cached_httpx)
+    return _cached_client
+
+
+def close_client() -> None:
+    """Close the cached httpx client, if any."""
+    global _cached_client, _cached_httpx
+    if _cached_httpx is not None:
+        _cached_httpx.close()
+    _cached_client = None
+    _cached_httpx = None
 
 def _pick_examples(texts: List[str], k: int = 12) -> List[str]:
     texts = [t for t in texts if isinstance(t, str) and t.strip()]
@@ -34,11 +58,15 @@ Return ONLY JSON, no prose.
 """
 
 def llm_label_for_cluster(texts: List[str], model: str = "gpt-4o-mini") -> Tuple[str,str]:
+    client = get_client()
+    if client is None:
+        return "Unlabeled", ""
+
     msgs = [
         {"role":"system","content":SYSTEM},
         {"role":"user","content":USER_TEMPLATE.format(examples="\n---\n".join(_pick_examples(texts)))}
     ]
-    resp = _client_singleton.chat.completions.create(model=model, messages=msgs, temperature=0.2)
+    resp = client.chat.completions.create(model=model, messages=msgs, temperature=0.2)
     content = resp.choices[0].message.content.strip()
     try:
         data = json.loads(content)
