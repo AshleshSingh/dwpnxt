@@ -13,3 +13,7 @@ To prevent `pandas` C-extension import errors, install a pre-built wheel and ens
 ```bash
 pip install --force-reinstall --no-build-isolation pandas==2.2.2
 ```
+
+If the app runs behind a reverse proxy (e.g., Nginx), ensure the proxy's
+`client_max_body_size` matches the `maxUploadSize` in `.streamlit/config.toml`
+so large workbook uploads aren't rejected.
