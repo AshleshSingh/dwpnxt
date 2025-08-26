@@ -4,8 +4,8 @@ enableXsrfProtection = false
 enableCORS = false
 
 # Bump limits just in case (MB):
-maxUploadSize = 1000  # adjust as needed
-maxMessageSize = 1024
+maxUploadSize = 10000  # adjust as needed
+maxMessageSize = 10240
 
 # For deployments behind a reverse proxy (e.g., Nginx),
 # set a matching `client_max_body_size` in that proxy's configuration.
