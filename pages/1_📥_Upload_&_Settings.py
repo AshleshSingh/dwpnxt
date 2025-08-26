@@ -28,7 +28,10 @@ if f:
     auto = propose_mapping(all_cols)
     raw = pd.concat(dfs, ignore_index=True, sort=False) if dfs else pd.DataFrame()
 
-    st.success(f"Found sheets: {', '.join(used)}") if used else st.error("No valid sheets found")
+    if used:
+        st.success(f"Found sheets: {', '.join(used)}")
+    else:
+        st.error("No valid sheets found")
 
     with st.expander("Column Mapping (auto-detected → change if needed)", expanded=True):
         col_map = {}
