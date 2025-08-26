@@ -4,7 +4,7 @@ enableXsrfProtection = false
 enableCORS = false
 
 # Bump limits just in case (MB):
-maxUploadSize = 1000  # MB; pick a value big enough for typical workbooks
+maxUploadSize = 1000  # adjust as needed
 maxMessageSize = 1024
 
 # For deployments behind a reverse proxy (e.g., Nginx),
