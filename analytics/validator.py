@@ -47,19 +47,16 @@ def _parse_dates(df):
         df["resolved_dt"] = best if best is not None else pd.NaT
     return df
 
-def validate_and_normalize(inc: pd.DataFrame, req: pd.DataFrame, mapping: Optional[Dict]=None) -> Tuple[pd.DataFrame, Dict]:
+def validate_and_normalize(df: pd.DataFrame, mapping: Optional[Dict]=None) -> Tuple[pd.DataFrame, Dict]:
     notes = {}
-    inc = inc.copy() if inc is not None else pd.DataFrame()
-    req = req.copy() if req is not None else pd.DataFrame()
+    df = df.copy() if df is not None else pd.DataFrame()
 
     if mapping:
         from analytics.mapping import apply_mapping
-        inc = apply_mapping(inc, mapping)
-        req = apply_mapping(req, mapping)
+        df = apply_mapping(df, mapping)
 
-    def prep(df, source):
+    def prep(df):
         df = df.copy()
-        df["source"] = source
         df = _norm_text_cols(df)
         for c in OPTIONAL_NUMERIC:
             if c in df.columns: df[c] = pd.to_numeric(df[c], errors="coerce")
@@ -70,8 +67,7 @@ def validate_and_normalize(inc: pd.DataFrame, req: pd.DataFrame, mapping: Option
         df = _parse_dates(df)
         return df
 
-    incp = prep(inc, "INC"); reqp = prep(req, "REQ")
-    df = pd.concat([incp, reqp], ignore_index=True, sort=False)
+    df = prep(df)
 
     df["text"] = (df["short_description"].fillna("") + " " + df["description"].fillna("")).astype(str)
 

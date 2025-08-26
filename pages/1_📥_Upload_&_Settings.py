@@ -10,17 +10,25 @@ st.title("📥 Upload & Settings")
 prefs = load_prefs()
 
 with st.expander("Upload ServiceNow Excel", expanded=True):
-    f = st.file_uploader("Upload .xlsx with sheets: 'Incidents', 'ServiceRequests'", type=["xlsx"])
+    f = st.file_uploader("Upload .xlsx (sheets with required columns will be detected)", type=["xlsx"])
     st.caption("Minimum required: short_description, description (you can map columns below). Optional: assignment_group, persona, site, opened date, AHT, SLA Breach, Reopen, etc.")
 
 if f:
     xl = pd.ExcelFile(f)
-    inc = xl.parse("Incidents") if "Incidents" in xl.sheet_names else pd.DataFrame()
-    req = xl.parse("ServiceRequests") if "ServiceRequests" in xl.sheet_names else pd.DataFrame()
-
-    st.success(f"Found sheets: {', '.join(xl.sheet_names)}")
-    all_cols = sorted(set(inc.columns.tolist()) | set(req.columns.tolist()))
+    dfs = []
+    used = []
+    for name in xl.sheet_names:
+        tmp = xl.parse(name)
+        test_map = propose_mapping(tmp.columns)
+        if test_map.get("short_description") and test_map.get("description"):
+            tmp["source"] = name
+            dfs.append(tmp)
+            used.append(name)
+    all_cols = sorted({c for d in dfs for c in d.columns}) if dfs else []
     auto = propose_mapping(all_cols)
+    raw = pd.concat(dfs, ignore_index=True, sort=False) if dfs else pd.DataFrame()
+
+    st.success(f"Found sheets: {', '.join(used)}") if used else st.error("No valid sheets found")
 
     with st.expander("Column Mapping (auto-detected → change if needed)", expanded=True):
         col_map = {}
@@ -33,7 +41,7 @@ if f:
 
         c1,c2 = st.columns(2)
         if c1.button("Quick Load (use auto-mapping)"):
-            df, notes = validate_and_normalize(inc, req, mapping=auto)
+            df, notes = validate_and_normalize(raw, mapping=auto)
             st.session_state["df"] = df
             st.session_state["aht_guess"] = estimate_aht_minutes(df, default=8.0)
             st.session_state["column_map"] = auto
@@ -42,7 +50,7 @@ if f:
             st.session_state["dirty"] = True
             st.success(f"Loaded rows: {notes['rows']} | Empty text: {notes['empty_text_pct']}%")
         if c2.button("Apply Mapping & Load Data"):
-            df, notes = validate_and_normalize(inc, req, mapping=col_map)
+            df, notes = validate_and_normalize(raw, mapping=col_map)
             st.session_state["df"] = df
             st.session_state["aht_guess"] = estimate_aht_minutes(df, default=8.0)
             st.session_state["column_map"] = col_map

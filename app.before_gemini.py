@@ -18,7 +18,11 @@ if f:
     xl = pd.ExcelFile(f)
     inc = xl.parse("Incidents") if "Incidents" in xl.sheet_names else pd.DataFrame()
     req = xl.parse("ServiceRequests") if "ServiceRequests" in xl.sheet_names else pd.DataFrame()
-    df, notes = validate_and_normalize(inc, req)
+    raw = pd.concat([
+        inc.assign(source="Incidents"),
+        req.assign(source="ServiceRequests")
+    ], ignore_index=True, sort=False)
+    df, notes = validate_and_normalize(raw)
     st.success(f"Loaded rows: {notes['rows']}  |  Empty text: {notes['empty_text_pct']}%")
     st.session_state["df"] = df
 else:
