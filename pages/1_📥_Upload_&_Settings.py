@@ -77,6 +77,12 @@ with st.expander("Clustering & Coverage", expanded=True):
     prefs["target_other_pct"] = c2.slider("Target 'Other' max %", 0, 50, int(prefs.get("target_other_pct",12)), 1)
     prefs["include_other"] = c3.checkbox("Include 'Other' in outputs", value=bool(prefs.get("include_other",False)))
 
+with st.expander("Vectorization", expanded=False):
+    c1,c2,c3 = st.columns(3)
+    prefs["vectorizer"] = c1.selectbox("Vectorizer", ["tfidf","hashing"], index=["tfidf","hashing"].index(prefs.get("vectorizer","tfidf")))
+    prefs["max_features"] = c2.number_input("Max features", 1000, 200000, int(prefs.get("max_features",30000)), 1000)
+    prefs["svd_batch_size"] = c3.number_input("SVD batch size (0=all)", 0, 10000, int(prefs.get("svd_batch_size",0)), 100)
+
 with st.expander("Save / Load Settings", expanded=False):
     c1,c2 = st.columns(2)
     with c1:
@@ -89,5 +95,8 @@ with st.expander("Save / Load Settings", expanded=False):
             prefs["OPENAI_API_KEY"] = os.environ.get("OPENAI_API_KEY","")
             path = save_prefs(prefs=prefs, include_keys=True)
             st.warning(f"Saved with keys to {path} (be cautious with git).")
+
+for k in ["llm_provider","min_cluster_size","target_other_pct","include_other","vectorizer","max_features","svd_batch_size"]:
+    st.session_state[k] = prefs.get(k)
 
 st.info("Next → open **📊 Drivers & Visualization**")

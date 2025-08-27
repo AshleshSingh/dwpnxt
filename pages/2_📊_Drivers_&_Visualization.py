@@ -16,6 +16,10 @@ include_other = bool(st.session_state.get("include_other", False))
 min_cluster_size = int(st.session_state.get("min_cluster_size", 25))
 target_other = float(st.session_state.get("target_other_pct", 12))/100.0
 provider = st.session_state.get("llm_provider","auto")
+vec_choice = st.session_state.get("vectorizer", "tfidf")
+max_features = int(st.session_state.get("max_features", 30000))
+svd_batch_size = int(st.session_state.get("svd_batch_size", 0))
+use_hashing = vec_choice == "hashing"
 dirty = st.session_state.get("dirty", False)
 refined = st.session_state.get("refined")
 freq_all = st.session_state.get("freq_all")
@@ -34,7 +38,15 @@ if refined is None or freq_all is None or fig_top is None or dirty:
 
     # 2) Clustering + iterative reduction + Python/LLM rename (cluster names)
     with st.expander("Clustering on 'Other' + Intelligent Labeling (Python-first, LLM optional)", expanded=True):
-        refined = iterative_other_reduction(tcd_df, target_other_pct=target_other, max_rounds=3, min_cluster_size=min_cluster_size)
+        refined = iterative_other_reduction(
+            tcd_df,
+            target_other_pct=target_other,
+            max_rounds=3,
+            min_cluster_size=min_cluster_size,
+            use_hashing=use_hashing,
+            max_features=max_features,
+            svd_batch_size=(svd_batch_size or None)
+        )
 
         # Rename all discovered cluster_* or "Other" buckets via bridge (Python → LLM when keys present)
         renamed = {}
