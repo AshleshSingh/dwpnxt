@@ -5,3 +5,9 @@ rules:
     keywords: ["status", "check status", "where is", "eta", "update", "progress"]
   - name: Access Provisioning (Standard)
     keywords: ["access", "add to group", "license", "entitle", "provision"]
+  - name: VPN Issues
+    keywords: ["vpn", "virtual private network", "remote access", "globalprotect", "anyconnect", "netextender"]
+  - name: Email Issues
+    keywords: ["email", "outlook", "mailbox", "inbox", "exchange", "o365", "office 365", "gmail"]
+  - name: Hardware Issues
+    keywords: ["laptop", "desktop", "computer", "hardware", "device", "monitor", "keyboard", "mouse", "printer"]
