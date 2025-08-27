@@ -4,6 +4,9 @@ DEFAULT_PREFS = {
   "min_cluster_size": 25,
   "target_other_pct": 12,
   "include_other": False,
+  "vectorizer": "tfidf",      # tfidf or hashing
+  "max_features": 30000,       # features for Tfidf/Hashing vectorizers
+  "svd_batch_size": 0,         # 0 = fit all at once
   "cost_per_min": 1.20,
   "deflection_pct": 35,
 }

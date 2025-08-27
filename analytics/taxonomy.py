@@ -1,11 +1,20 @@
 import os, yaml, re
 from dataclasses import dataclass
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple, Dict, Any, Pattern
 
 @dataclass
 class TaxEntry:
     name: str
-    synonyms: List[str]
+    # mapping of synonym -> weight
+    synonyms: Dict[str, float]
+
+
+@dataclass
+class CompiledTaxEntry:
+    """Taxonomy entry with precompiled regex patterns."""
+    name: str
+    phrase_patterns: List[Pattern]
+    token_patterns: List[Tuple[Pattern, float]]
 
 def save_taxonomy(data: Dict[str, Any], path: str = "config/taxonomy.yaml") -> None:
     """Persist the given taxonomy dictionary to disk."""
@@ -42,11 +51,39 @@ def load_taxonomy_entries(path: str = "config/taxonomy.yaml") -> List[TaxEntry]:
     for item in doc.get("taxonomy", []):
         try:
             name = item["name"]
-            synonyms = [str(s).lower() for s in item.get("synonyms", [])]
-            out.append(TaxEntry(name=name, synonyms=synonyms))
+            syns_raw = item.get("synonyms", [])
+            syns: Dict[str, float] = {}
+            for s in syns_raw:
+                if isinstance(s, dict):
+                    for k, v in s.items():
+                        try:
+                            syns[str(k).lower()] = float(v)
+                        except Exception:
+                            continue
+                else:
+                    syns[str(s).lower()] = 1.0
+            out.append(TaxEntry(name=name, synonyms=syns))
         except Exception:
             continue
     return out
+
+
+def compile_taxonomy_entries(entries: List[TaxEntry]) -> List[CompiledTaxEntry]:
+    """Precompile regex patterns for each taxonomy entry."""
+    compiled: List[CompiledTaxEntry] = []
+    for e in entries:
+        phrase_pats: List[Pattern] = []
+        token_pats: List[Tuple[Pattern, float]] = []
+        for syn in e.synonyms:
+            if " " in syn:
+                phrase_pats.append(re.compile(re.escape(syn)))
+            else:
+                weight = 1.0 if syn not in GENERIC_WEAK else 0.25
+                token_pats.append((re.compile(r"\b" + re.escape(syn) + r"\b"), weight))
+        compiled.append(CompiledTaxEntry(name=e.name,
+                                        phrase_patterns=phrase_pats,
+                                        token_patterns=token_pats))
+    return compiled
 
 # Strong phrase patterns to resolve conflicts
 NETWORK_AP_PATTERNS = [
@@ -71,18 +108,22 @@ NETWORK_AP_REGEXES = [re.compile(p) for p in NETWORK_AP_PATTERNS]
 ACCESS_PROV_REGEXES = [re.compile(p) for p in ACCESS_PROV_PATTERNS]
 GENERIC_WEAK = {"access"}  # downweight generic token
 
-def match_taxonomy(text: str, entries: List[TaxEntry]) -> Tuple[str, float]:
+
+
+def match_taxonomy(text: str, entries: List[CompiledTaxEntry]) -> Tuple[str, float]:
     t = (text or "").lower()
-    phrase_hits = {e.name:0 for e in entries}
-    token_hits  = {e.name:0 for e in entries}
+
+    phrase_hits = {e.name:0.0 for e in entries}
+    token_hits  = {e.name:0.0 for e in entries}
     for e in entries:
-        for syn in e.synonyms:
+        for syn, wt in e.synonyms.items():
             if " " in syn:
                 if syn in t:
-                    phrase_hits[e.name] += 3
+                    phrase_hits[e.name] += 3 * wt
             else:
                 if re.search(r"\b"+re.escape(syn)+r"\b", t):
-                    token_hits[e.name] += 1 if syn not in GENERIC_WEAK else 0.25
+                    token_hits[e.name] += 1 * wt
+
 
     network_ap_hit = any(p.search(t) for p in NETWORK_AP_REGEXES)
     access_prov_hit = any(p.search(t) for p in ACCESS_PROV_REGEXES)
@@ -105,6 +146,6 @@ def match_taxonomy(text: str, entries: List[TaxEntry]) -> Tuple[str, float]:
     return (best[0], float(best[1]))
 
 # ---------- Backwards compatibility shim ----------
-def map_text_to_taxonomy(text, entries):
+def map_text_to_taxonomy(text: str, entries: List[CompiledTaxEntry]):
     """Compatibility alias – forwards to match_taxonomy()."""
     return match_taxonomy(text, entries)
