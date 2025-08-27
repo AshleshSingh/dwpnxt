@@ -49,8 +49,26 @@ def load_taxonomy_entries(path: str = "config/taxonomy.yaml") -> List[TaxEntry]:
     return out
 
 # Strong phrase patterns to resolve conflicts
-NETWORK_AP_PATTERNS = [r"access point", r"\bap\b", r"wlc", r"wireless controller", r"ssid", r"wlan", r"thin ap", r"gigabitethernet"]
-ACCESS_PROV_PATTERNS = [r"add to group", r"request access", r"enablement", r"entitlement", r"grant access", r"provision"]
+NETWORK_AP_PATTERNS = [
+    r"access point",
+    r"\bap\b",
+    r"wlc",
+    r"wireless controller",
+    r"ssid",
+    r"wlan",
+    r"thin ap",
+    r"gigabitethernet",
+]
+ACCESS_PROV_PATTERNS = [
+    r"add to group",
+    r"request access",
+    r"enablement",
+    r"entitlement",
+    r"grant access",
+    r"provision",
+]
+NETWORK_AP_REGEXES = [re.compile(p) for p in NETWORK_AP_PATTERNS]
+ACCESS_PROV_REGEXES = [re.compile(p) for p in ACCESS_PROV_PATTERNS]
 GENERIC_WEAK = {"access"}  # downweight generic token
 
 def match_taxonomy(text: str, entries: List[TaxEntry]) -> Tuple[str, float]:
@@ -66,19 +84,19 @@ def match_taxonomy(text: str, entries: List[TaxEntry]) -> Tuple[str, float]:
                 if re.search(r"\b"+re.escape(syn)+r"\b", t):
                     token_hits[e.name] += 1 if syn not in GENERIC_WEAK else 0.25
 
-    def has_any(pats): 
-        return any(re.search(p, t) for p in pats)
+    network_ap_hit = any(p.search(t) for p in NETWORK_AP_REGEXES)
+    access_prov_hit = any(p.search(t) for p in ACCESS_PROV_REGEXES)
 
     scores = {name: phrase_hits[name] + token_hits[name] for name in phrase_hits}
 
     # Bias rules
-    if has_any(NETWORK_AP_PATTERNS):
+    if network_ap_hit:
         for name in list(scores.keys()):
             if "Network Hardware" in name or "Interface" in name:
                 scores[name] += 5
             if "Access Provisioning" in name:
                 scores[name] -= 2
-    if has_any(ACCESS_PROV_PATTERNS):
+    if access_prov_hit:
         for name in list(scores.keys()):
             if "Access Provisioning" in name:
                 scores[name] += 4
