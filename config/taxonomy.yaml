@@ -140,10 +140,11 @@ taxonomy:
       - "request access"
       - "access request"
       - "grant access"
-      - account
-      - privilege
-      - permission
-      - "user access"
+      - access: 0.05
+      - account: 0.1
+      - privilege: 0.1
+      - permission: 0.1
+      - "user access": 0.1
   - name: Software Install / Update
     synonyms:
       - install
@@ -163,7 +164,7 @@ taxonomy:
       - sync
       - drive
       - share
-      - permission
+      - permission: 0.1
       - library
       - "shared drive"
       - "file share"

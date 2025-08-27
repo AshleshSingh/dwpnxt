@@ -5,7 +5,8 @@ from typing import List, Tuple, Dict, Any
 @dataclass
 class TaxEntry:
     name: str
-    synonyms: List[str]
+    # mapping of synonym -> weight
+    synonyms: Dict[str, float]
 
 def save_taxonomy(data: Dict[str, Any], path: str = "config/taxonomy.yaml") -> None:
     """Persist the given taxonomy dictionary to disk."""
@@ -42,8 +43,18 @@ def load_taxonomy_entries(path: str = "config/taxonomy.yaml") -> List[TaxEntry]:
     for item in doc.get("taxonomy", []):
         try:
             name = item["name"]
-            synonyms = [str(s).lower() for s in item.get("synonyms", [])]
-            out.append(TaxEntry(name=name, synonyms=synonyms))
+            syns_raw = item.get("synonyms", [])
+            syns: Dict[str, float] = {}
+            for s in syns_raw:
+                if isinstance(s, dict):
+                    for k, v in s.items():
+                        try:
+                            syns[str(k).lower()] = float(v)
+                        except Exception:
+                            continue
+                else:
+                    syns[str(s).lower()] = 1.0
+            out.append(TaxEntry(name=name, synonyms=syns))
         except Exception:
             continue
     return out
@@ -51,20 +62,19 @@ def load_taxonomy_entries(path: str = "config/taxonomy.yaml") -> List[TaxEntry]:
 # Strong phrase patterns to resolve conflicts
 NETWORK_AP_PATTERNS = [r"access point", r"\bap\b", r"wlc", r"wireless controller", r"ssid", r"wlan", r"thin ap", r"gigabitethernet"]
 ACCESS_PROV_PATTERNS = [r"add to group", r"request access", r"enablement", r"entitlement", r"grant access", r"provision"]
-GENERIC_WEAK = {"access"}  # downweight generic token
 
 def match_taxonomy(text: str, entries: List[TaxEntry]) -> Tuple[str, float]:
     t = (text or "").lower()
-    phrase_hits = {e.name:0 for e in entries}
-    token_hits  = {e.name:0 for e in entries}
+    phrase_hits = {e.name:0.0 for e in entries}
+    token_hits  = {e.name:0.0 for e in entries}
     for e in entries:
-        for syn in e.synonyms:
+        for syn, wt in e.synonyms.items():
             if " " in syn:
                 if syn in t:
-                    phrase_hits[e.name] += 3
+                    phrase_hits[e.name] += 3 * wt
             else:
                 if re.search(r"\b"+re.escape(syn)+r"\b", t):
-                    token_hits[e.name] += 1 if syn not in GENERIC_WEAK else 0.25
+                    token_hits[e.name] += 1 * wt
 
     def has_any(pats): 
         return any(re.search(p, t) for p in pats)

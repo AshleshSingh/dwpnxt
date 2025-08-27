@@ -23,9 +23,33 @@ st.subheader("Inline Editor")
 for i, cat in enumerate(tax.get("taxonomy", [])):
     with st.expander(cat["name"], expanded=False):
         new_name = st.text_input("Name", value=cat["name"], key=f"name_{i}")
-        syn = st.text_area("Synonyms (comma separated)", value=", ".join(cat.get("synonyms",[])), key=f"syn_{i}")
+        existing_syns = []
+        for s in cat.get("synonyms", []):
+            if isinstance(s, dict):
+                k, v = next(iter(s.items()))
+                existing_syns.append(f"{k}:{v}")
+            else:
+                existing_syns.append(str(s))
+        syn = st.text_area(
+            "Synonyms (comma separated)",
+            value=", ".join(existing_syns),
+            key=f"syn_{i}",
+        )
         cat["name"] = new_name.strip() or cat["name"]
-        cat["synonyms"] = [s.strip() for s in syn.split(",") if s.strip()]
+        parsed = []
+        for s in syn.split(","):
+            s = s.strip()
+            if not s:
+                continue
+            if ":" in s:
+                term, wt = s.split(":", 1)
+                try:
+                    parsed.append({term.strip(): float(wt)})
+                except ValueError:
+                    parsed.append(term.strip())
+            else:
+                parsed.append(s)
+        cat["synonyms"] = parsed
 
 if st.button("Save changes"):
     save_taxonomy(tax)
