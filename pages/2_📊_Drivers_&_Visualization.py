@@ -2,7 +2,12 @@ import streamlit as st, pandas as pd, plotly.express as px, pathlib
 from analytics.tcd import load_rules, derive_drivers
 from analytics.cluster import iterative_other_reduction
 from analytics.llm_bridge import best_label_for_cluster
-from analytics.taxonomy import load_taxonomy_entries, map_text_to_taxonomy, match_taxonomy
+from analytics.taxonomy import (
+    load_taxonomy_entries,
+    compile_taxonomy_entries,
+    map_text_to_taxonomy,
+    match_taxonomy,
+)
 
 st.markdown("<style>" + pathlib.Path("assets/theme.css").read_text() + "</style>", unsafe_allow_html=True)
 st.title("📊 Drivers & Visualization")
@@ -55,7 +60,7 @@ if refined is None or freq_all is None or fig_top is None or dirty:
 
     # 3) Taxonomy mapping + reconciliation
     with st.expander("Map to DWPNxt Taxonomy & Reconcile", expanded=True):
-        entries = load_taxonomy_entries()
+        entries = compile_taxonomy_entries(load_taxonomy_entries())
         # taxonomy score per row
         titles, scores = [], []
         for txt in refined["text"].astype(str).tolist():
