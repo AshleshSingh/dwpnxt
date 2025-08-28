@@ -25,23 +25,23 @@ def _norm_text_cols(df):
 def _parse_dates(df):
     # opened_dt
     if "opened_dt" in df.columns:
-        df["opened_dt"] = pd.to_datetime(df["opened_dt"], errors="coerce")
+        df["opened_dt"] = pd.to_datetime(df["opened_dt"], format="mixed", errors="coerce")
     else:
         date_cols = [c for c in df.columns if DATE_HINTS.search(c)]
         best = None
         for c in date_cols:
-            s = pd.to_datetime(df[c], errors="coerce")
+            s = pd.to_datetime(df[c], format="mixed", errors="coerce")
             if s.notna().sum() > 0:
                 best = s if best is None else s.combine_first(best)
         df["opened_dt"] = best if best is not None else pd.NaT
     # resolved_dt
     if "resolved_dt" in df.columns:
-        df["resolved_dt"] = pd.to_datetime(df["resolved_dt"], errors="coerce")
+        df["resolved_dt"] = pd.to_datetime(df["resolved_dt"], format="mixed", errors="coerce")
     else:
         cands = [c for c in df.columns if re.search(r"(resolve|close|complete)", c, re.I)]
         best = None
         for c in cands:
-            s = pd.to_datetime(df[c], errors="coerce")
+            s = pd.to_datetime(df[c], format="mixed", errors="coerce")
             if s.notna().sum() > 0:
                 best = s if best is None else s.combine_first(best)
         df["resolved_dt"] = best if best is not None else pd.NaT
