@@ -8,6 +8,7 @@ def driver_kpis(df: pd.DataFrame) -> pd.DataFrame:
     if "driver" not in d.columns and "final_driver" in d.columns:
         d = d.rename(columns={"final_driver": "driver"})
     d["driver"] = d["driver"].astype(str).fillna("Other")
+    d["reopen_count_num"] = d["reopen_count_num"].fillna(0)
     gp = d.groupby("driver", dropna=False)
     out = pd.DataFrame({
         "Tickets": gp.size(),
