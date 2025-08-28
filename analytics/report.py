@@ -8,13 +8,14 @@ def driver_kpis(df: pd.DataFrame) -> pd.DataFrame:
     if "driver" not in d.columns and "final_driver" in d.columns:
         d = d.rename(columns={"final_driver": "driver"})
     d["driver"] = d["driver"].astype(str).fillna("Other")
+    d["reopen_count_num"] = d["reopen_count_num"].fillna(0)
     gp = d.groupby("driver", dropna=False)
     out = pd.DataFrame({
         "Tickets": gp.size(),
         "With_AHT": gp["aht_min"].apply(lambda s: s.notna().sum()),
         "Median_AHT": gp["aht_min"].median(),
         "SLA_Breach_%": gp["sla_breached_bool"].mean()*100,
-        "Reopen_Rate_%": gp["reopen_count_num"].fillna(0).gt(0).mean()*100
+        "Reopen_Rate_%": gp["reopen_count_num"].gt(0).mean()*100
     }).fillna(0).reset_index()
     return out.sort_values("Tickets", ascending=False)
 
