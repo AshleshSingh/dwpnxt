@@ -96,7 +96,7 @@ if refined is None or freq_all is None or fig_top is None or dirty:
         refined["taxonomy_score"] = tx.apply(lambda r: r[1])
 
         # Force “access point”-style incidents to Network Hardware / Interface
-        mask_ap = refined["text"].str.contains(r"\b(access point|wlc|wireless controller|wlan|ssid|thin ap|gigabitethernet)\b", case=False, na=False)
+        mask_ap = refined["text"].str.contains(r"\b(?:access point|wlc|wireless controller|wlan|ssid|thin ap|gigabitethernet)\b", case=False, na=False)
         refined.loc[mask_ap, "final_driver"] = "Network Hardware / Interface"
 
         # If driver is Other but taxonomy is confident, adopt taxonomy name
