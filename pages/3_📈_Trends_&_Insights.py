@@ -29,7 +29,12 @@ st.caption(f"Top { (tot['cum_pct']<=80).sum() } drivers contribute ~80% of all t
 
 # SLA & Reopen
 st.subheader("Quality KPIs (SLA Breach %, Reopen %)")
-sla = df.groupby("final_driver")["sla_breached_bool"].mean()*100
-reo = df["reopen_count_num"].fillna(0).gt(0).groupby(df["final_driver"]).mean()*100
-kpi = pd.DataFrame({"SLA_Breach_%": sla.round(1), "Reopen_Rate_%": reo.round(1)}).fillna(0).sort_values("SLA_Breach_%", ascending=False)
+sla = df.groupby("final_driver")["sla_breached_bool"].mean() * 100
+reo = df["reopen_count_num"].fillna(0).gt(0).groupby(df["final_driver"]).mean() * 100
+kpi = (
+    pd.DataFrame({"SLA_Breach_%": sla.round(1), "Reopen_Rate_%": reo.round(1)})
+    .fillna(0)
+    .infer_objects(copy=False)
+    .sort_values("SLA_Breach_%", ascending=False)
+)
 st.dataframe(kpi, use_container_width=True)
