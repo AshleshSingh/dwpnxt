@@ -15,7 +15,7 @@ def driver_kpis(df: pd.DataFrame) -> pd.DataFrame:
         "Median_AHT": gp["aht_min"].median(),
         "SLA_Breach_%": gp["sla_breached_bool"].mean()*100,
         "Reopen_Rate_%": gp["reopen_count_num"].fillna(0).gt(0).mean()*100
-    }).fillna(0).reset_index()
+    }).fillna(0).infer_objects(copy=False).reset_index()
     return out.sort_values("Tickets", ascending=False)
 
 def roi_table(kpis: pd.DataFrame, cost_per_min: float, deflection: float) -> pd.DataFrame:
