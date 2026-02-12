@@ -1,6 +1,11 @@
-llm_provider: auto
+llm_provider: gemini
 min_cluster_size: 25
 target_other_pct: 12
 include_other: false
+vectorizer: tfidf
+max_features: 30000
+svd_batch_size: 0
 cost_per_min: 1.2
 deflection_pct: 35
+GEMINI_API_KEY: ''
+OPENAI_API_KEY: ''
